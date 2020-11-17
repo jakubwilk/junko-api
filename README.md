@@ -14,16 +14,35 @@
 
 ```
 {
-    "type": "mysql",
-    "host": "",
-    "port": 3306,
-    "username": "",
-    "password": "",
-    "database": "",
-    "entities": ["src/**/*.entity.ts"],
-    "migrations": ["src/migrations/*.js"],
-    "synchronize": true
+	"type": "postgres",
+	"host": "localhost",
+	"port": ,
+	"username": "",
+	"password": "",
+	"database": "",
+	"synchronize": true,
+	"entities": [
+		"dist/**/*.entity.{ts,js}"
+	],
+	"migrations": ["src/migrations/**/*.ts"],
+	"cli": {
+		"migrationsDir": "src/migrations"
+	}
 }
+
+```
+
+## .end.development example
+
+```
+DATABASE_HOST=
+DATABASE_NAME=
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_TYPE=
+DATABASE_PORT=
+JWT_SECRET=
+PASSWORD_SALT=
 ```
 
 ## Support
