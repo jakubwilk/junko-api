@@ -4,6 +4,8 @@ import { Connection } from 'typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersAuthModule } from './users-auth/users-auth.module';
+import { Users } from './users-auth/users.entity';
 
 @Module({
   	imports: [
@@ -17,13 +19,14 @@ import { AppService } from './app.service';
 			username: process.env['DATABASE_USER'],
 			password: process.env['DATABASE_PASSWORD'],
 			database: process.env['DATABASE_NAME'],
-			synchronize: false,
-			entities: [],
+			synchronize: true,
+			entities: [Users],
 			migrations: ['src/migrations/**/*.js'],
 			cli: {
 				migrationsDir: 'src/migrations'
 			}
-		})
+		}),
+		UsersAuthModule
   	],
   	controllers: [AppController],
   	providers: [AppService],
