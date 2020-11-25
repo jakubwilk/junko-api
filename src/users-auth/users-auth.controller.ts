@@ -6,7 +6,7 @@ type CreateUser = {
     password: string;
     firstName: string;
     lastName: string;
-}
+};
 
 @Controller('users-auth')
 export class UsersAuthController {
@@ -15,6 +15,11 @@ export class UsersAuthController {
     @Post('create')
     getUsers(@Body() user: CreateUser) {
         const { email, password, firstName, lastName } = user;
-        return this.usersAuthService.create(email, password, firstName, lastName);
+        return this.usersAuthService.create(
+            email,
+            password,
+            firstName,
+            lastName,
+        );
     }
 }

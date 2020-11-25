@@ -1,5 +1,12 @@
 import * as argon2 from 'argon2';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
+import {
+    Entity,
+    Column,
+    PrimaryGeneratedColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+    BeforeInsert,
+} from 'typeorm';
 
 @Entity()
 export class Users {

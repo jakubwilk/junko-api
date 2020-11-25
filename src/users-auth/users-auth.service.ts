@@ -10,7 +10,12 @@ export class UsersAuthService {
         private usersAuthRepository: Repository<Users>,
     ) {}
 
-    async create(email: string, password: string, firstName: string, lastName: string) {
+    async create(
+        email: string,
+        password: string,
+        firstName: string,
+        lastName: string,
+    ) {
         const user = new Users();
         user.email = email;
         user.password = password;
@@ -20,12 +25,20 @@ export class UsersAuthService {
         const createUser = await this.usersAuthRepository.save(user);
 
         if (!createUser) {
-            throw new HttpException({ message: ['Server encountered a problem while creating a new user'], error: 'Internal Server Error' }, HttpStatus.INTERNAL_SERVER_ERROR)
-          }
-      
-          return {
+            throw new HttpException(
+                {
+                    message: [
+                        'Server encountered a problem while creating a new user',
+                    ],
+                    error: 'Internal Server Error',
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        return {
             message: ['Account successfully created'],
-            error: ''
-          };
+            error: '',
+        };
     }
 }
