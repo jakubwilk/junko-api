@@ -1,25 +1,32 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
+import { CreateUser } from '../types/users-auth.types';
 
-type CreateUser = {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-};
-
-@Controller('users-auth')
+@Controller('user')
 export class UsersAuthController {
     constructor(private readonly usersAuthService: UsersAuthService) {}
 
-    @Post('create')
-    getUsers(@Body() user: CreateUser) {
-        const { email, password, firstName, lastName } = user;
-        return this.usersAuthService.create(
-            email,
+    @Put()
+    async createUser(@Body() userData: CreateUser) {
+        const { email, password, repeatPassword } = userData;
+
+        await this.usersAuthService.validateExistingUser(email, true);
+        await this.usersAuthService.validateNewUserPasswords(
             password,
-            firstName,
-            lastName,
+            repeatPassword,
         );
+
+        return 'test';
     }
+
+    // @Post('create')
+    // getUsers(@Body() user: CreateUser) {
+    //     const { email, password, firstName, lastName } = user;
+    //     return this.usersAuthService.create(
+    //         email,
+    //         password,
+    //         firstName,
+    //         lastName,
+    //     );
+    // }
 }

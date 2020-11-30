@@ -10,35 +10,65 @@ export class UsersAuthService {
         private usersAuthRepository: Repository<Users>,
     ) {}
 
-    async create(
-        email: string,
-        password: string,
-        firstName: string,
-        lastName: string,
-    ) {
-        const user = new Users();
-        user.email = email;
-        user.password = password;
-        user.first_name = firstName;
-        user.last_name = lastName;
+    async validateExistingUser(email: string, registerAction: boolean) {
+        const user = await this.usersAuthRepository.findOne({ email: email });
 
-        const createUser = await this.usersAuthRepository.save(user);
-
-        if (!createUser) {
+        if (!user) {
             throw new HttpException(
                 {
-                    message: [
-                        'Server encountered a problem while creating a new user',
-                    ],
-                    error: 'Internal Server Error',
+                    message: registerAction
+                        ? ['User with this email address already exists']
+                        : ['User with this email address not found'],
+                    error: 'Bad Request',
+                    field: registerAction ? null : 'email',
                 },
-                HttpStatus.INTERNAL_SERVER_ERROR,
+                HttpStatus.BAD_REQUEST,
             );
         }
-
-        return {
-            message: ['Account successfully created'],
-            error: '',
-        };
     }
+
+    async validateNewUserPasswords(password: string, repeatPassword: string) {
+        if (password !== repeatPassword) {
+            throw new HttpException(
+                {
+                    message: ['Passwords must be the same'],
+                    error: 'Bad Request',
+                    field: 'password',
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+    }
+
+    // async create(
+    //     email: string,
+    //     password: string,
+    //     firstName: string,
+    //     lastName: string,
+    // ) {
+    //     const user = new Users();
+    //     user.email = email;
+    //     user.password = password;
+    //     user.first_name = firstName;
+    //     user.last_name = lastName;
+    //
+    //     const createUser = await this.usersAuthRepository.save(user);
+    //
+    //     if (!createUser) {
+    //         throw new HttpException(
+    //             {
+    //                 message: [
+    //                     'Server encountered a problem while creating a new user',
+    //                 ],
+    //                 error: 'Internal Server Error',
+    //             },
+    //             HttpStatus.INTERNAL_SERVER_ERROR,
+    //         );
+    //     }
+    //
+    //     return {
+    //         message: ['Account successfully created'],
+    //         error: '',
+    //     };
+    // }
 }
