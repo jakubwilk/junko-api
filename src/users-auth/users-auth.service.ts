@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
+import { CreateUser } from '../types/users-auth.types';
 
 @Injectable()
 export class UsersAuthService {
@@ -10,17 +11,15 @@ export class UsersAuthService {
         private usersAuthRepository: Repository<Users>,
     ) {}
 
-    async validateExistingUser(email: string, registerAction: boolean) {
+    async validateExistingRegisterUser(email: string) {
         const user = await this.usersAuthRepository.findOne({ email: email });
 
-        if (!user) {
+        if (user) {
             throw new HttpException(
                 {
-                    message: registerAction
-                        ? ['User with this email address already exists']
-                        : ['User with this email address not found'],
+                    message: ['User with this email address already exists'],
                     error: 'Bad Request',
-                    field: registerAction ? null : 'email',
+                    field: null,
                 },
                 HttpStatus.BAD_REQUEST,
             );
@@ -40,35 +39,41 @@ export class UsersAuthService {
         }
     }
 
-    // async create(
-    //     email: string,
-    //     password: string,
-    //     firstName: string,
-    //     lastName: string,
-    // ) {
-    //     const user = new Users();
-    //     user.email = email;
-    //     user.password = password;
-    //     user.first_name = firstName;
-    //     user.last_name = lastName;
-    //
-    //     const createUser = await this.usersAuthRepository.save(user);
-    //
-    //     if (!createUser) {
-    //         throw new HttpException(
-    //             {
-    //                 message: [
-    //                     'Server encountered a problem while creating a new user',
-    //                 ],
-    //                 error: 'Internal Server Error',
-    //             },
-    //             HttpStatus.INTERNAL_SERVER_ERROR,
-    //         );
-    //     }
-    //
-    //     return {
-    //         message: ['Account successfully created'],
-    //         error: '',
-    //     };
-    // }
+    async getUsersList() {
+        const users = await this.usersAuthRepository.find();
+
+        if (users.length === 0) {
+            return 'Not found';
+        }
+
+        return users;
+    }
+
+    async createUser(email: string, password: string) {
+        const account = new Users();
+        account.email = email;
+        account.password = password;
+        account.role = 'BUSINESS_USER';
+
+        const user = await this.usersAuthRepository.save(account);
+
+        if (!user) {
+            throw new HttpException(
+                {
+                    message: [
+                        'Server encountered a problem while creating a new user',
+                    ],
+                    error: 'Internal Server Error',
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        // Todo: return user obj
+        return {
+            message: ['User successfully created'],
+            error: '',
+            status: 200,
+        };
+    }
 }
