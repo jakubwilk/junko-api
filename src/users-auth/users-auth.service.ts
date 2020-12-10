@@ -11,7 +11,21 @@ export class UsersAuthService {
         private usersAuthRepository: Repository<Users>,
     ) {}
 
-    async validateExistingRegisterUser(email: string) {
+    async validateExistingUserById(userId: string) {
+        const user = await this.usersAuthRepository.findOne({ id: userId });
+
+        if (!user) {
+            throw new HttpException(
+                {
+                    message: ['User with this ID not found'],
+                    error: 'Bad Request',
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+    }
+
+    async validateExistingRegisterUserEmail(email: string) {
         const user = await this.usersAuthRepository.findOne({ email: email });
 
         if (user) {
@@ -73,7 +87,31 @@ export class UsersAuthService {
         return {
             message: ['User successfully created'],
             error: '',
-            status: 200,
+            status: HttpStatus.OK,
+        };
+    }
+
+    async deleteUser(userId: string) {
+        const user = await this.usersAuthRepository.findOne({ id: userId });
+        user.is_active = false;
+        const updatedUser = await this.usersAuthRepository.save(user);
+
+        if (!updatedUser) {
+            throw new HttpException(
+                {
+                    message: [
+                        'Server encountered a problem while deleting a user',
+                    ],
+                    error: 'Internal Server Error',
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        return {
+            message: ['User successfully deleted'],
+            error: '',
+            status: HttpStatus.OK,
         };
     }
 }
