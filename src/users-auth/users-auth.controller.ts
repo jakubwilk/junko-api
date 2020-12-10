@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Put } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
 import { CreateUser } from '../types/users-auth.types';
 
@@ -9,8 +9,12 @@ export class UsersAuthController {
     @Put()
     async createUser(@Body() userData: CreateUser) {
         const { email, password, repeatPassword } = userData;
+        const isRegisterAction = true;
 
-        await this.usersAuthService.validateExistingUser(email, true);
+        await this.usersAuthService.validateExistingUser(
+            email,
+            isRegisterAction,
+        );
         await this.usersAuthService.validateNewUserPasswords(
             password,
             repeatPassword,
