@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
-import { CreateUser } from '../types/users-auth.types';
 
 @Injectable()
 export class UsersAuthService {
@@ -92,6 +91,8 @@ export class UsersAuthService {
     }
 
     async deleteUser(userId: string) {
+        // Don't remove data from database, but add a special flag to hide and off all "deleted" account data
+        // Todo: delete user tokens
         const user = await this.usersAuthRepository.findOne({ id: userId });
         user.is_active = false;
         const updatedUser = await this.usersAuthRepository.save(user);
