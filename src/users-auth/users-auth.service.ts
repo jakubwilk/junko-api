@@ -10,48 +10,6 @@ export class UsersAuthService {
         private usersAuthRepository: Repository<Users>,
     ) {}
 
-    async validateExistingUserById(userId: string) {
-        const user = await this.usersAuthRepository.findOne({ id: userId });
-
-        if (!user) {
-            throw new HttpException(
-                {
-                    message: ['User with this ID not found'],
-                    error: 'Bad Request',
-                },
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-    }
-
-    async validateExistingRegisterUserEmail(email: string) {
-        const user = await this.usersAuthRepository.findOne({ email: email });
-
-        if (user) {
-            throw new HttpException(
-                {
-                    message: ['User with this email address already exists'],
-                    error: 'Bad Request',
-                    field: null,
-                },
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-    }
-
-    async validateNewUserPasswords(password: string, repeatPassword: string) {
-        if (password !== repeatPassword) {
-            throw new HttpException(
-                {
-                    message: ['Passwords must be the same'],
-                    error: 'Bad Request',
-                    field: 'password',
-                },
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-    }
-
     async getUsersList() {
         const users = await this.usersAuthRepository.find();
 
