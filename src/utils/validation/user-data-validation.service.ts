@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/users-auth/users.entity';
 import { Repository } from 'typeorm';
+import { serverFailureMessage } from '../messages/server-response-messages';
 
 @Injectable()
 export class UserDataValidation {
@@ -14,13 +15,11 @@ export class UserDataValidation {
         const user = await this.userDataRepository.findOne({ id: userId });
 
         if (!user) {
-            throw new HttpException(
-                {
-                    message: ['User with this ID not found'],
-                    error: 'Bad Request',
-                },
-                HttpStatus.BAD_REQUEST
-            )
+            serverFailureMessage(
+                'User with this ID not found',
+                'Unprocessable Entity',
+                HttpStatus.UNPROCESSABLE_ENTITY
+            );
         }
     }
 
@@ -28,13 +27,11 @@ export class UserDataValidation {
         const user = await this.userDataRepository.findOne({ email: email });
 
         if (user) {
-            throw new HttpException(
-                {
-                    message: ['User with this email address already exists'],
-                    error: 'Bad Request',
-                },
-                HttpStatus.BAD_REQUEST
-            )
+            serverFailureMessage(
+                'User with this email address already exists',
+                'Unprocessable Entity',
+                HttpStatus.UNPROCESSABLE_ENTITY
+            );
         }
     }
 }

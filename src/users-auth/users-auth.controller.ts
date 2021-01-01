@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Put } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
 import { CreateUser } from '../types/users-auth.types';
 import { UserDataValidation } from 'src/utils/validation/user-data-validation.service';
+import { serverErrorMessage, serverSuccessMessage } from 'src/utils/messages/server-response-messages';
 
 @Controller('auth')
 export class UsersAuthController {
@@ -21,13 +22,31 @@ export class UsersAuthController {
         const { email, password, repeatPassword } = userData;
 
         await this.userDataValidation.validateUserByEmail(email);
-        return await this.usersAuthService.createUser(email, password);
+        const action = await this.usersAuthService.createUser(email, password);
+    
+        if (action) {
+            serverSuccessMessage(
+                'User successfully created',
+                HttpStatus.OK
+            );
+        }
+
+        serverErrorMessage();
     }
 
     @Delete(':userId')
     async deleteUser(@Param('userId') userId: string) {
         await this.userDataValidation.validateUserById(userId);
 
-        return await this.usersAuthService.deleteUser(userId);
+        const action = await this.usersAuthService.deleteUser(userId);
+        
+        if (action) {
+            serverSuccessMessage(
+                'User successfully deleted',
+                HttpStatus.OK
+            );
+        }
+
+        serverErrorMessage();
     }
 }

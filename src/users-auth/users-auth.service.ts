@@ -29,26 +29,13 @@ export class UsersAuthService {
         const user = await this.usersAuthRepository.save(account);
 
         if (!user) {
-            throw new HttpException(
-                {
-                    message: [
-                        'Server encountered a problem while creating a new user',
-                    ],
-                    error: 'Internal Server Error',
-                },
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            return false;
         }
 
-        // Todo: return user obj
-        return {
-            message: ['User successfully created'],
-            error: '',
-            status: HttpStatus.OK,
-        };
+        return true;
     }
 
-    async deleteUser(userId: string) {
+    async deleteUser(userId: string): Promise<boolean> {
         // Don't remove data from database, but add a special flag to hide and off all "deleted" account data
         // Todo: delete user tokens
         const user = await this.usersAuthRepository.findOne({ id: userId });
@@ -56,21 +43,9 @@ export class UsersAuthService {
         const updatedUser = await this.usersAuthRepository.save(user);
 
         if (!updatedUser) {
-            throw new HttpException(
-                {
-                    message: [
-                        'Server encountered a problem while deleting a user',
-                    ],
-                    error: 'Internal Server Error',
-                },
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
+            return false;
         }
 
-        return {
-            message: ['User successfully deleted'],
-            error: '',
-            status: HttpStatus.OK,
-        };
+        return true;
     }
 }
