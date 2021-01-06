@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
-import { CreateUser } from '../types/users-auth.types';
+import { CreateUser, EditUser } from '../types/users-auth.types';
 import { UserDataValidation } from 'src/utils/validation/user-data-validation.service';
 import { serverErrorMessage, serverSuccessMessage } from 'src/utils/messages/server-response-messages';
 
@@ -19,14 +19,31 @@ export class UsersAuthController {
 
     @Put()
     async createUser(@Body() userData: CreateUser) {
-        const { email, password, repeatPassword } = userData;
+        const { email } = userData;
 
         await this.userDataValidation.validateUserByEmail(email);
-        const action = await this.usersAuthService.createUser(email, password);
+        const action = await this.usersAuthService.createUser(userData);
     
         if (action) {
             serverSuccessMessage(
                 'User successfully created',
+                HttpStatus.OK
+            );
+        }
+
+        serverErrorMessage();
+    }
+
+    @Post()
+    async updateUser(@Body() userData: EditUser) {
+        const { userId } = userData;
+        await this.userDataValidation.validateUserById(userId);
+
+        const action = await this.usersAuthService.editUser(userData);
+
+        if (action) {
+            serverSuccessMessage(
+                'User successfully updated',
                 HttpStatus.OK
             );
         }

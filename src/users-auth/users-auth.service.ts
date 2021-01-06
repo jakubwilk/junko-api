@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUser, EditUser } from 'src/types/users-auth.types';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
 
@@ -20,7 +21,8 @@ export class UsersAuthService {
         return users;
     }
 
-    async createUser(email: string, password: string) {
+    async createUser(userData: CreateUser): Promise<boolean> {
+        const { email, password } = userData;
         const account = new Users();
         account.email = email;
         account.password = password;
@@ -35,14 +37,32 @@ export class UsersAuthService {
         return true;
     }
 
+    async editUser(userData: EditUser): Promise<boolean> {
+        const { userId, email, password, role, isActive, isBanned } = userData;
+        const user = await this.usersAuthRepository.findOne({ id: userId });
+        user.email = email;
+        user.password = password;
+        user.role = role;
+        user.is_active = isActive;
+        user.is_banned = isBanned;
+
+        const updateAction = await this.usersAuthRepository.save(user);
+
+        if (!updateAction) {
+            return false;
+        }
+
+        return true;
+    }
+
     async deleteUser(userId: string): Promise<boolean> {
         // Don't remove data from database, but add a special flag to hide and off all "deleted" account data
         // Todo: delete user tokens
         const user = await this.usersAuthRepository.findOne({ id: userId });
         user.is_active = false;
-        const updatedUser = await this.usersAuthRepository.save(user);
+        const deleteAction = await this.usersAuthRepository.save(user);
 
-        if (!updatedUser) {
+        if (!deleteAction) {
             return false;
         }
 
