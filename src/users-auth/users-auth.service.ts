@@ -38,27 +38,41 @@ export class UsersAuthService {
     }
 
     async editUser(userData: EditUser): Promise<boolean> {
-        const { userId, email, password, role, isActive, isBanned } = userData;
-        const user = await this.usersAuthRepository.findOne({ id: userId }) as Users;
-        user.email = email;
-        user.password = password;
-        user.role = role;
-        user.is_active = isActive;
-        user.is_banned = isBanned;
+        try {
+            const { userId, email, role, isActive, isBanned } = userData;
+            const user = await this.usersAuthRepository.findOne({ id: userId });
+            user.email = email;
+            user.role = role;
+            user.is_active = isActive;
+            user.is_banned = isBanned;
 
-        const updateAction = await this.usersAuthRepository.save(user);
+            await this.usersAuthRepository.save(user);
 
-        if (!updateAction) {
+            return true;
+        } catch (error) {
             return false;
         }
+        // const { userId, email, role, isActive, isBanned } = userData;
+        // const user = await this.usersAuthRepository.findOne({ id: userId });
+        // user.email = email;
+        // user.role = role;
+        // user.is_active = isActive;
+        // user.is_banned = isBanned;
 
-        return true;
+        // const updateAction = await this.usersAuthRepository.save(user);
+        // console.log(updateAction);
+
+        // if (!updateAction) {
+        //     return false;
+        // }
+
+        // return true;
     }
 
     async deleteUser(userId: string): Promise<boolean> {
         // Don't remove data from database, but add a special flag to hide and off all "deleted" account data
         // Todo: delete user tokens
-        const user = await this.usersAuthRepository.findOne({ id: userId }) as Users;
+        const user = await this.usersAuthRepository.findOne({ id: userId });
         user.is_active = false;
         const deleteAction = await this.usersAuthRepository.save(user);
 

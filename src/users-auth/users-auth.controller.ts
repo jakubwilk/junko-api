@@ -25,7 +25,7 @@ export class UsersAuthController {
         const action = await this.usersAuthService.createUser(userData);
     
         if (action) {
-            serverSuccessMessage(
+            return serverSuccessMessage(
                 'User successfully created',
                 HttpStatus.OK
             );
@@ -40,9 +40,10 @@ export class UsersAuthController {
         await this.userDataValidation.validateUserById(userId);
 
         const action = await this.usersAuthService.editUser(userData);
+        console.log(action);
 
         if (action) {
-            serverSuccessMessage(
+            return serverSuccessMessage(
                 'User successfully updated',
                 HttpStatus.OK
             );
@@ -58,7 +59,7 @@ export class UsersAuthController {
         const action = await this.usersAuthService.deleteUser(userId);
         
         if (action) {
-            serverSuccessMessage(
+            return serverSuccessMessage(
                 'User successfully deleted',
                 HttpStatus.OK
             );

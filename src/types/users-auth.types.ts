@@ -6,7 +6,6 @@ export type CreateUser = {
 export type EditUser = {
     userId: string;
     email: string;
-    password: string;
     role: string;
     isActive: boolean;
     isBanned: boolean;
