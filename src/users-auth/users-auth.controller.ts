@@ -3,6 +3,7 @@ import { UsersAuthService } from './users-auth.service';
 import { CreateUser, EditUser } from '../types/users-auth.types';
 import { UserDataValidation } from 'src/utils/validation/user-data-validation.service';
 import { serverErrorMessage, serverSuccessMessage } from 'src/utils/messages/server-response-messages';
+import { Users } from './users.entity';
 
 @Controller('auth')
 export class UsersAuthController {
@@ -24,14 +25,17 @@ export class UsersAuthController {
         await this.userDataValidation.validateUserByEmail(email);
         const action = await this.usersAuthService.createUser(userData);
     
-        if (action) {
-            return serverSuccessMessage(
-                'User successfully created',
-                HttpStatus.OK
-            );
+        if (!action) {
+            serverErrorMessage();
         }
 
-        serverErrorMessage();
+        const user = action as Users;
+
+        return serverSuccessMessage(
+            'User successfully created',
+            HttpStatus.OK,
+            user
+        );
     }
 
     @Post()
@@ -40,16 +44,23 @@ export class UsersAuthController {
         await this.userDataValidation.validateUserById(userId);
 
         const action = await this.usersAuthService.editUser(userData);
-        console.log(action);
 
-        if (action) {
-            return serverSuccessMessage(
-                'User successfully updated',
-                HttpStatus.OK
-            );
+        if (!action) {
+            serverErrorMessage();
         }
 
-        serverErrorMessage();
+        const user = action as Users;
+
+        return serverSuccessMessage(
+            'User successfully updated',
+            HttpStatus.OK,
+            user
+        );
+    }
+
+    @Post('/login')
+    async loginUser() {
+        
     }
 
     @Delete(':userId')
@@ -58,13 +69,16 @@ export class UsersAuthController {
 
         const action = await this.usersAuthService.deleteUser(userId);
         
-        if (action) {
-            return serverSuccessMessage(
-                'User successfully deleted',
-                HttpStatus.OK
-            );
+        if (!action) {
+            serverErrorMessage();
         }
 
-        serverErrorMessage();
+        const user = action as Users;
+
+        return serverSuccessMessage(
+            'User successfully marked as deleted',
+            HttpStatus.OK,
+            user
+        );
     }
 }

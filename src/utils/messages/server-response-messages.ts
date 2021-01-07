@@ -1,6 +1,19 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Users } from 'src/users-auth/users.entity';
 
-export const serverErrorMessage = () => {
+type ErrorMessageFormat = {
+    message: string[];
+    error: string;
+    statusCode: number;
+}
+
+type SuccessMessageFormat = {
+    message: string[];
+    statusCode: number;
+    data?: Users
+}
+
+export const serverErrorMessage = (): ErrorMessageFormat => {
     throw new HttpException(
         {
             message: ['Server encountered a problem'],
@@ -14,7 +27,7 @@ export const serverFailureMessage = (
     failureMessage: string,
     failureError: string,
     failureCode: number
-) => {
+): ErrorMessageFormat => {
     throw new HttpException(
         {
             message: [failureMessage],
@@ -26,10 +39,12 @@ export const serverFailureMessage = (
 
 export const serverSuccessMessage = (
     successMessage: string,
-    successCode: number
-) => {
+    successCode: number,
+    successData?: Users
+): SuccessMessageFormat => {
     return {
         message: [successMessage],
-        statusCode: successCode
+        statusCode: successCode,
+        data: successData
     }
 }

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { validate, ValidationError } from 'class-validator';
 import { CreateUser, EditUser } from 'src/types/users-auth.types';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
@@ -21,55 +22,39 @@ export class UsersAuthService {
         return users;
     }
 
-    async createUser(userData: CreateUser): Promise<boolean> {
+    async createUser(userData: CreateUser): Promise<boolean | Users> {
         const { email, password } = userData;
         const account = new Users();
         account.email = email;
         account.password = password;
         account.role = 'BUSINESS_USER';
 
-        const user = await this.usersAuthRepository.save(account);
+        const errors: ValidationError[] = await validate(account);
 
-        if (!user) {
+        if (errors.length > 0) {
             return false;
         }
 
-        return true;
+        return await this.usersAuthRepository.save(account);
     }
 
-    async editUser(userData: EditUser): Promise<boolean> {
-        try {
-            const { userId, email, role, isActive, isBanned } = userData;
-            const user = await this.usersAuthRepository.findOne({ id: userId });
-            user.email = email;
-            user.role = role;
-            user.is_active = isActive;
-            user.is_banned = isBanned;
+    async editUser(userData: EditUser): Promise<boolean | Users> {
+        const { userId, role, isActive, isBanned } = userData;
+        const user = await this.usersAuthRepository.findOne({ id: userId });
+        user.role = role;
+        user.is_active = isActive;
+        user.is_banned = isBanned;
 
-            await this.usersAuthRepository.save(user);
+        const errors: ValidationError[] = await validate(user);
 
-            return true;
-        } catch (error) {
+        if (errors.length > 0) {
             return false;
         }
-        // const { userId, email, role, isActive, isBanned } = userData;
-        // const user = await this.usersAuthRepository.findOne({ id: userId });
-        // user.email = email;
-        // user.role = role;
-        // user.is_active = isActive;
-        // user.is_banned = isBanned;
 
-        // const updateAction = await this.usersAuthRepository.save(user);
-        // console.log(updateAction);
-
-        // if (!updateAction) {
-        //     return false;
-        // }
-
-        // return true;
+        return await this.usersAuthRepository.save(user);
     }
 
-    async deleteUser(userId: string): Promise<boolean> {
+    async deleteUser(userId: string): Promise<boolean | Users> {
         // Don't remove data from database, but add a special flag to hide and off all "deleted" account data
         // Todo: delete user tokens
         const user = await this.usersAuthRepository.findOne({ id: userId });
@@ -80,6 +65,6 @@ export class UsersAuthService {
             return false;
         }
 
-        return true;
+        return await this.usersAuthRepository.save(user);;
     }
 }
