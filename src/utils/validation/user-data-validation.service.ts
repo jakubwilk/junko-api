@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/users-auth/users.entity';
 import { Repository } from 'typeorm';
 import { serverFailureMessage } from '../messages/server-response-messages';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UserDataValidation {
@@ -32,6 +33,30 @@ export class UserDataValidation {
                 'Unprocessable Entity',
                 HttpStatus.UNPROCESSABLE_ENTITY
             );
+        }
+    }
+
+    async validateExistEmail(email: string) {
+        const result: Users = await this.userDataRepository.findOne({ email: email });
+
+        if (result.id === undefined) {
+            return serverFailureMessage(
+                'User with this email not found',
+                'Unauthorized',
+                HttpStatus.UNAUTHORIZED
+            )
+        } 
+    }
+
+    async validateUserPassword(password: string) {
+        const action = await argon2.verify(process.env['PASSWORD_SALT'], password);
+
+        if (!action) {
+            return serverFailureMessage(
+                'Incorrect password was entered',
+                'Unauthorized',
+                HttpStatus.UNAUTHORIZED
+            )
         }
     }
 }

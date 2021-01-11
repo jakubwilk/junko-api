@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
 import { CreateUser, EditUser } from '../types/users-auth.types';
 import { UserDataValidation } from 'src/utils/validation/user-data-validation.service';
@@ -16,6 +16,14 @@ export class UsersAuthController {
     @Get()
     async usersList() {
         return await this.usersAuthService.getUsersList();
+    }
+
+    @Put('/employee')
+    async addPartnerUser(@Body() userEmail: string) {
+        await this.userDataValidation.validateUserByEmail(userEmail);
+
+        // Todo: send activation email
+        return "ok";
     }
 
     @Put()
@@ -59,8 +67,16 @@ export class UsersAuthController {
     }
 
     @Post('/login')
-    async loginUser() {
-        
+    async loginUser(@Body() userData: CreateUser, @Res() res: Response) {
+        const { email, password } = userData;
+
+        await this.userDataValidation.validateExistEmail(email);
+        await this.userDataValidation.validateUserPassword(password);
+
+        const action = await this.usersAuthService.loginUser(email);
+
+        res.headers.set('Authorization', `Bearer ${action.token}`);
+        return action.data;
     }
 
     @Delete(':userId')

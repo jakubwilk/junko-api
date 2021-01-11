@@ -9,3 +9,11 @@ export type EditUser = {
     isActive: boolean;
     isBanned: boolean;
 }
+
+export type JwtPayload = {
+    userId: string;
+    role: string;
+    isActive: boolean;
+    isBanned: boolean;
+    createdAt: Date;
+}
