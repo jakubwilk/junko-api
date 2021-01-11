@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Header, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
 import { CreateUser, EditUser } from '../types/users-auth.types';
 import { UserDataValidation } from 'src/utils/validation/user-data-validation.service';
 import { serverErrorMessage, serverSuccessMessage } from 'src/utils/messages/server-response-messages';
 import { Users } from './users.entity';
+import { Response } from 'express';
 
 @Controller('auth')
 export class UsersAuthController {
@@ -75,7 +76,7 @@ export class UsersAuthController {
 
         const action = await this.usersAuthService.loginUser(email);
 
-        res.headers.set('Authorization', `Bearer ${action.token}`);
+        res.set('Authorization', `Bearer ${action.token}`);
         return action.data;
     }
 
