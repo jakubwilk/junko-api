@@ -43,12 +43,11 @@ export class UsersAuthService {
             createdAt: user.created_at
         }
 
-        const token = this.jwtService.sign(payload);
         // Todo: Create DTO without user password
         return {
             data: user,
-            token: token
-        }
+            token: await this.generateToken(payload)
+        } 
     }
 
     async editUser(userData: EditUser): Promise<boolean | Users> {
@@ -73,5 +72,9 @@ export class UsersAuthService {
         }
 
         return await this.usersAuthRepository.save(user);;
+    }
+
+    async generateToken(payload: JwtPayload) {
+        return this.jwtService.sign(payload, { expiresIn: '24h', algorithm: 'HS512' });
     }
 }

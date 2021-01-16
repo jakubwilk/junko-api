@@ -76,8 +76,7 @@ export class UsersAuthController {
 
         const action = await this.usersAuthService.loginUser(email);
 
-        res.set('Authorization', `Bearer ${action.token}`);
-        return action.data;
+        return res.header('Authorization', `Bearer ${action.token}`).status(HttpStatus.OK).json(action.data);
     }
 
     @Delete(':userId')
