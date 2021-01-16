@@ -4,6 +4,7 @@ import { Users } from 'src/users-auth/users.entity';
 import { Repository } from 'typeorm';
 import { serverFailureMessage } from '../messages/server-response-messages';
 import * as argon2 from 'argon2';
+import { CreateUser } from 'src/types/users-auth.types';
 
 @Injectable()
 export class UserDataValidation {
@@ -48,8 +49,11 @@ export class UserDataValidation {
         } 
     }
 
-    async validateUserPassword(password: string) {
-        const action = await argon2.verify(process.env['PASSWORD_SALT'], password);
+    async validateUserPassword(userData: CreateUser) {
+        const { email, password } = userData;
+
+        const user = await this.userDataRepository.findOne({ email: email });
+        const action = await argon2.verify(user.password, password);
 
         if (!action) {
             return serverFailureMessage(

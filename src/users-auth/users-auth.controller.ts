@@ -69,10 +69,10 @@ export class UsersAuthController {
 
     @Post('/login')
     async loginUser(@Body() userData: CreateUser, @Res() res: Response) {
-        const { email, password } = userData;
+        const { email } = userData;
 
         await this.userDataValidation.validateExistEmail(email);
-        await this.userDataValidation.validateUserPassword(password);
+        await this.userDataValidation.validateUserPassword(userData);
 
         const action = await this.usersAuthService.loginUser(email);
 

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { validate, ValidationError } from 'class-validator';
 import { CreateUser, EditUser, JwtPayload } from 'src/types/users-auth.types';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
@@ -30,13 +29,7 @@ export class UsersAuthService {
         account.email = email;
         account.password = password;
         account.role = 'BUSINESS_USER';
-
-        const errors: ValidationError[] = await validate(account);
-
-        if (errors.length > 0) {
-            return false;
-        }
-
+        
         return await this.usersAuthRepository.save(account);
     }
 
@@ -50,7 +43,7 @@ export class UsersAuthService {
             createdAt: user.created_at
         }
 
-        const token = this.jwtService.sign(payload, { algorithm: 'RS512' });
+        const token = this.jwtService.sign(payload);
         // Todo: Create DTO without user password
         return {
             data: user,
@@ -64,12 +57,6 @@ export class UsersAuthService {
         user.role = role;
         user.is_active = isActive;
         user.is_banned = isBanned;
-
-        const errors: ValidationError[] = await validate(user);
-
-        if (errors.length > 0) {
-            return false;
-        }
 
         return await this.usersAuthRepository.save(user);
     }
