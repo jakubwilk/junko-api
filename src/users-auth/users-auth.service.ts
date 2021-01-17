@@ -28,7 +28,7 @@ export class UsersAuthService {
         const account = new Users();
         account.email = email;
         account.password = password;
-        account.role = 'BUSINESS_USER';
+        account.role = 'partner';
         
         return await this.usersAuthRepository.save(account);
     }
@@ -76,5 +76,24 @@ export class UsersAuthService {
 
     async generateToken(payload: JwtPayload) {
         return this.jwtService.sign(payload, { expiresIn: '24h', algorithm: 'HS512' });
+    }
+
+    async validateToken(token: string): Promise<boolean> {
+        try {
+            const isValidToken = await this.jwtService.verify(token, { secret: process.env['JWT_SECRET'] });
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    async extractRolesFromToken(token: string): Promise<string[]> {
+        const userToken = await this.jwtService.verify(token, { secret: process.env['JWT_SECRET'] });
+        return userToken.roles;
+    }
+
+    async extracUserIdFromToken(token: string): Promise<string> {
+        const userToken = await this.jwtService.verify(token, { secret: process.env['JWT_SECRET'] });
+        return userToken.id;
     }
 }
