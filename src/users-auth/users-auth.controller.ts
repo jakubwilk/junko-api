@@ -1,11 +1,15 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { UsersAuthService } from './users-auth.service';
 import { CreateUser, EditUser } from '../types/users-auth.types';
 import { UserDataValidation } from 'src/utils/validation/user-data-validation.service';
 import { serverErrorMessage, serverSuccessMessage } from 'src/utils/messages/server-response-messages';
 import { Users } from './users.entity';
 import { Response } from 'express';
+import { Roles } from 'src/guards/auth.decorator';
+import { ROLES } from 'src/utils/constants/roles';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('auth')
 export class UsersAuthController {
     constructor(
@@ -19,7 +23,8 @@ export class UsersAuthController {
         return await this.usersAuthService.getUsersList();
     }
 
-    @Put('/employee')
+    @Put('employee')
+    @Roles(ROLES.OWNER)
     async addPartnerUser(@Body() userEmail: string) {
         await this.userDataValidation.validateUserByEmail(userEmail);
 
@@ -67,7 +72,7 @@ export class UsersAuthController {
         );
     }
 
-    @Post('/login')
+    @Post('login')
     async loginUser(@Body() userData: CreateUser, @Res() res: Response) {
         const { email } = userData;
 
@@ -80,6 +85,7 @@ export class UsersAuthController {
     }
 
     @Delete(':userId')
+    @Roles(ROLES.PARTNER, ROLES.OWNER)
     async deleteUser(@Param('userId') userId: string) {
         await this.userDataValidation.validateUserById(userId);
 
